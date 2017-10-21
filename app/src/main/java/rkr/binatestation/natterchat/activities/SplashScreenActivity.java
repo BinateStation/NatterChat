@@ -2,13 +2,12 @@ package rkr.binatestation.natterchat.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class SplashScreenActivity extends AppCompatActivity {
+public class SplashScreenActivity extends BaseActivity {
     private static final String TAG = "SplashScreenActivity";
 
     @Override
@@ -26,5 +25,6 @@ public class SplashScreenActivity extends AppCompatActivity {
             intent = new Intent(this, RegistrationActivity.class);
         }
         startActivity(intent);
+        finish();
     }
 }

@@ -3,7 +3,6 @@ package rkr.binatestation.natterchat.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -27,12 +26,14 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import rkr.binatestation.natterchat.R;
 import rkr.binatestation.natterchat.models.UserModel;
+import rkr.binatestation.natterchat.utils.SessionUtils;
 
-public class RegistrationActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
+import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_USERS;
+
+public class RegistrationActivity extends BaseActivity implements GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
 
     private static final String TAG = "RegistrationActivity";
-    private static final String KEY_USERS = "USERS";
     private static final int RC_SIGN_IN = 89;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -53,10 +54,11 @@ public class RegistrationActivity extends AppCompatActivity implements GoogleApi
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     UserModel userModel = new UserModel(user);
+                    userModel.setPushToken(SessionUtils.getPushToken(RegistrationActivity.this));
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference myRef = database.getReference();
 
-                    myRef.child(KEY_USERS).child(userModel.getUserId()).setValue(userModel);
+                    myRef.child(KEY_TABLE_USERS).child(userModel.getId()).setValue(userModel);
                     startActivity(new Intent(RegistrationActivity.this, SplashScreenActivity.class));
                     finish();
                 } else {

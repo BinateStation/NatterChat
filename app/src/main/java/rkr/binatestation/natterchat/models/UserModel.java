@@ -12,7 +12,8 @@ import com.google.firebase.database.IgnoreExtraProperties;
  * UserModel
  */
 @IgnoreExtraProperties
-public class UserModel implements Parcelable {
+public class UserModel extends BaseModel implements Parcelable {
+
     public static final Creator<UserModel> CREATOR = new Creator<UserModel>() {
         @Override
         public UserModel createFromParcel(Parcel in) {
@@ -24,45 +25,29 @@ public class UserModel implements Parcelable {
             return new UserModel[size];
         }
     };
-    private String userId;
-    private String name;
     private String photo;
+    private String pushToken;
+
+    public UserModel(@NonNull FirebaseUser user) {
+        super(user.getUid(), user.getDisplayName());
+        this.photo = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+    }
+
 
     public UserModel() {
     }
 
-    public UserModel(String userId, String name, String photo) {
-        this.userId = userId;
-        this.name = name;
-        this.photo = photo;
-    }
-
-    public UserModel(@NonNull FirebaseUser user) {
-        this.userId = user.getUid();
-        this.name = user.getDisplayName();
-        this.photo = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
-    }
-
-    private UserModel(Parcel in) {
-        userId = in.readString();
-        name = in.readString();
+    protected UserModel(Parcel in) {
+        super(in);
         photo = in.readString();
+        pushToken = in.readString();
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeString(photo);
+        dest.writeString(pushToken);
     }
 
     public String getPhoto() {
@@ -73,15 +58,18 @@ public class UserModel implements Parcelable {
         this.photo = photo;
     }
 
+    public String getPushToken() {
+        return pushToken;
+    }
+
+    public void setPushToken(String pushToken) {
+        this.pushToken = pushToken;
+    }
+
     @Override
     public int describeContents() {
         return 0;
     }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(userId);
-        parcel.writeString(name);
-        parcel.writeString(photo);
-    }
+
 }

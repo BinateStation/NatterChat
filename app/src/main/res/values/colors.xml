@@ -2,5 +2,13 @@
 <resources>
     <color name="colorPrimary">#8BC34A</color>
     <color name="colorPrimaryDark">#5a9216</color>
+    <color name="colorPrimaryLight">#bef67a</color>
     <color name="colorAccent">#607D8B</color>
+    <color name="black_alpha">#64000000</color>
+
+
+    <color name="progress_red">#FFC93437</color>
+    <color name="progress_blue">#FF375BF1</color>
+    <color name="progress_yellow">#FFF7D23E</color>
+    <color name="progress_green">#FF34A350</color>
 </resources>
