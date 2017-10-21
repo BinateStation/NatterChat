@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "428522136394",
+    "firebase_url": "https://natter-chat.firebaseio.com",
+    "project_id": "natter-chat",
+    "storage_bucket": "natter-chat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:428522136394:android:f0b86a510f147c2d",
+        "android_client_info": {
+          "package_name": "rkr.binatestation.natterchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "428522136394-mugbreis6j66ugg7am285urb1onrq1h0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "rkr.binatestation.natterchat",
+            "certificate_hash": "e2ac6e5a94bd822ebdef1bb2438b6e6a567a2edb"
+          }
+        },
+        {
+          "client_id": "428522136394-57n2pc503pp1p8a0ino5gl71c1sdbq30.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9h-zGFyGDXPoXwuJP5J2IE54JEI2DpIw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "428522136394-57n2pc503pp1p8a0ino5gl71c1sdbq30.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
