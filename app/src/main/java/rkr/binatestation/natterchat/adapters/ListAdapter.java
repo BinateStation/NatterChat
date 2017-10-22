@@ -21,6 +21,7 @@ import rkr.binatestation.natterchat.listeners.OnListItemRemoveListener;
 import rkr.binatestation.natterchat.models.ChatContactModel;
 import rkr.binatestation.natterchat.models.ChatMessageModel;
 import rkr.binatestation.natterchat.models.EmptyStateModel;
+import rkr.binatestation.natterchat.models.Status;
 import rkr.binatestation.natterchat.models.UserModel;
 
 /**
@@ -96,29 +97,28 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (this.data.remove(EmptyStateModel.getUnKnownEmptyModel())) {
             notifyDataSetChanged();
         }
-        this.data.add(object);
-        notifyItemInserted(data.size() - 1);
-    }
-
-    public void replace(Object object, long requestId) {
-        if (this.data.remove(EmptyStateModel.getUnKnownEmptyModel())) {
-            notifyDataSetChanged();
+        if (object instanceof ChatMessageModel) {
+            ChatMessageModel chatMessageModel = (ChatMessageModel) object;
+            int index = data.indexOf(chatMessageModel);
+            if (index >= 0 && index < data.size()) {
+                Object obj = data.get(index);
+                if (obj instanceof ChatMessageModel) {
+                    ChatMessageModel model = (ChatMessageModel) obj;
+                    model.setId(chatMessageModel.getId());
+                    model.setStatus(Status.SEND.getValue());
+                    notifyItemChanged(index);
+                } else {
+                    this.data.add(object);
+                    notifyItemInserted(data.size() - 1);
+                }
+            } else {
+                this.data.add(object);
+                notifyItemInserted(data.size() - 1);
+            }
+        } else {
+            this.data.add(object);
+            notifyItemInserted(data.size() - 1);
         }
-//        if (object instanceof ChatMessageModel) {
-//            ChatMessageModel chatMessageModel = (ChatMessageModel) object;
-//            ChatMessageModel messageModel = ChatMessageModel.getDummyObject(chatMessageModel.getChatGroupId());
-//            messageModel.setId(requestId);
-//            int index = data.indexOf(messageModel);
-//            if (index >= 0 && index < data.size()) {
-//                Object obj = data.get(index);
-//                if (obj instanceof ChatMessageModel) {
-//                    ChatMessageModel model = (ChatMessageModel) obj;
-//                    model.setId(chatMessageModel.getId());
-//                    model.setStatus(Status.SEND.getValue());
-//                    notifyItemChanged(index);
-//                }
-//            }
-//        }
     }
 
     public void add(Object object, int position) {

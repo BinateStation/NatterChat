@@ -3,6 +3,8 @@ package rkr.binatestation.natterchat.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.util.ArrayList;
 
 /**
@@ -10,6 +12,7 @@ import java.util.ArrayList;
  * ChatContactModel
  */
 
+@IgnoreExtraProperties
 public class ChatContactModel extends BaseModel implements Parcelable {
     public static final Creator<ChatContactModel> CREATOR = new Creator<ChatContactModel>() {
         @Override
@@ -36,7 +39,7 @@ public class ChatContactModel extends BaseModel implements Parcelable {
         this.chatMessages = chatMessages;
     }
 
-    protected ChatContactModel(Parcel in) {
+    private ChatContactModel(Parcel in) {
         super(in);
         sender = in.readParcelable(UserModel.class.getClassLoader());
         receiver = in.readParcelable(UserModel.class.getClassLoader());

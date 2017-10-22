@@ -16,14 +16,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 import rkr.binatestation.natterchat.R;
+import rkr.binatestation.natterchat.activities.ChatActivity;
 import rkr.binatestation.natterchat.listeners.ChatContactFragmentListener;
 import rkr.binatestation.natterchat.listeners.OnListItemClickListener;
 import rkr.binatestation.natterchat.models.ChatContactModel;
 import rkr.binatestation.natterchat.models.EmptyStateModel;
 import rkr.binatestation.natterchat.models.UserModel;
 
-import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_USERS;
+import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_CHATS;
 
 /**
  * Fragment to list the contact list
@@ -33,6 +36,7 @@ public class ChatContactListFragment extends ListFragment implements ValueEventL
     private static final String KEY_USER_MODEL = "USER_MODEL";
 
     private ChatContactFragmentListener mListener;
+    private UserModel mUserModel;
 
     public ChatContactListFragment() {
         // Required empty public constructor
@@ -62,6 +66,15 @@ public class ChatContactListFragment extends ListFragment implements ValueEventL
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            mUserModel = bundle.getParcelable(KEY_USER_MODEL);
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_chat_contact_list, container, false);
     }
@@ -76,14 +89,17 @@ public class ChatContactListFragment extends ListFragment implements ValueEventL
     @Override
     public void onResume() {
         super.onResume();
-        getAdapter().add(EmptyStateModel.getChatContactEmptyState());
-//        loadContacts();
+        loadContacts();
     }
 
     private void loadContacts() {
         showProgress();
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        Query usersQuery = mDatabase.child(KEY_TABLE_USERS).limitToFirst(100);
+        Query usersQuery = mDatabase.child(KEY_TABLE_CHATS)
+                .orderByChild("id")
+                .startAt(mUserModel.getId())
+                .endAt("\uf8ff" + mUserModel.getId() + "\uf8ff");
+        usersQuery.keepSynced(true);
         usersQuery.addValueEventListener(this);
     }
 
@@ -91,8 +107,14 @@ public class ChatContactListFragment extends ListFragment implements ValueEventL
     public void onDataChange(DataSnapshot dataSnapshot) {
         Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot + "]");
         hideProgress();
+        ArrayList<Object> data = new ArrayList<>();
         for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-            getAdapter().add(userSnapshot.getValue(UserModel.class));
+            data.add(userSnapshot.getValue(ChatContactModel.class));
+        }
+        if (data.size() > 0) {
+            getAdapter().setData(data);
+        } else {
+            getAdapter().add(EmptyStateModel.getChatContactEmptyState());
         }
     }
 
@@ -116,7 +138,11 @@ public class ChatContactListFragment extends ListFragment implements ValueEventL
     public void onClickItem(Object object, int position) {
         if (object instanceof ChatContactModel) {
             ChatContactModel chatContactModel = (ChatContactModel) object;
-
+            navigateToChatActivity(chatContactModel);
         }
+    }
+
+    private void navigateToChatActivity(ChatContactModel chatContactModel) {
+        startActivity(ChatActivity.newInstance(getContext(), chatContactModel));
     }
 }

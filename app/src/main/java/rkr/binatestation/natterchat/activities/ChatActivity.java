@@ -1,18 +1,20 @@
 package rkr.binatestation.natterchat.activities;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,24 +25,18 @@ import rkr.binatestation.natterchat.models.ChatContactModel;
 import rkr.binatestation.natterchat.models.ChatMessageModel;
 import rkr.binatestation.natterchat.models.EmptyStateModel;
 import rkr.binatestation.natterchat.models.Status;
+import rkr.binatestation.natterchat.models.UserModel;
 import rkr.binatestation.natterchat.utils.SessionUtils;
 
-import static rkr.binatestation.natterchat.utils.Constant.KEY_ACTION_CHAT_MESSAGE;
 import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_CHATS;
 
-public class ChatActivity extends BaseActivity implements View.OnClickListener {
+public class ChatActivity extends BaseActivity implements View.OnClickListener, ValueEventListener {
 
     private static final String KEY_CHAT_CONTACT_MODEL = "CHAT_CONTACT_MODEL";
     private static final String TAG = "ChatActivity";
     private ListFragment mListFragment;
     private EditText mFieldMessageEditText;
     private ChatContactModel mChatContactModel;
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive() called with: context = [" + context + "], intent = [" + intent + "]");
-        }
-    };
 
     public static Intent newInstance(Context context, ChatContactModel chatContactModel) {
         Intent intent = new Intent(context, ChatActivity.class);
@@ -59,40 +55,27 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
         mListFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
         if (mListFragment != null) {
             mListFragment.getLinearLayoutManager().setStackFromEnd(true);
-            setData();
+            loadContacts();
         }
 
         actionSendMessage.setOnClickListener(this);
     }
 
-    private void setData() {
-        if (mChatContactModel != null && mListFragment != null) {
-            ArrayList<Object> data = ChatContactModel.getData(mChatContactModel.getChatMessages());
-            if (data.size() > 0) {
-                mListFragment.getAdapter().setData(data);
-            } else {
-                mListFragment.getAdapter().addEmptyState(EmptyStateModel.getChatMessageEmptyState());
-            }
-        }
+    private void loadContacts() {
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        Query usersQuery = mDatabase.child(KEY_TABLE_CHATS)
+                .child(mChatContactModel.getId())
+                .child("chatMessages")
+                .limitToFirst(100);
+        usersQuery.keepSynced(true);
+        usersQuery.addValueEventListener(this);
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(KEY_ACTION_CHAT_MESSAGE));
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mChatContactModel != null && mChatContactModel.getReceiver() != null) {
+        if (mChatContactModel != null) {
             SessionUtils.setChatResumed(
                     this,
                     true,
@@ -129,16 +112,20 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
 
     private void actionSendMessage(String message) {
         long time = Calendar.getInstance().getTimeInMillis();
-        ChatMessageModel chatMessageModel = new ChatMessageModel(
-                mChatContactModel.getId() + time,
-                message,
-                time,
-                Status.PENDING.getValue(),
-                mChatContactModel.getSender()
-        );
-        mFieldMessageEditText.setText("");
-        addMessage(chatMessageModel);
-        sendMessage(chatMessageModel);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            UserModel sender = new UserModel(user);
+            ChatMessageModel chatMessageModel = new ChatMessageModel(
+                    sender.getId() + time,
+                    message,
+                    time,
+                    Status.PENDING.getValue(),
+                    sender
+            );
+            mFieldMessageEditText.setText("");
+            addMessage(chatMessageModel);
+            sendMessage(chatMessageModel);
+        }
     }
 
     private void addMessage(ChatMessageModel chatMessageModel) {
@@ -151,7 +138,29 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
     private void sendMessage(ChatMessageModel chatMessageModel) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference();
+        chatMessageModel.setStatus(Status.SEND.getValue());
         mChatContactModel.getChatMessages().add(chatMessageModel);
         myRef.child(KEY_TABLE_CHATS).child(mChatContactModel.getId()).setValue(mChatContactModel);
+    }
+
+    @Override
+    public void onDataChange(DataSnapshot dataSnapshot) {
+        if (mListFragment != null) {
+            ArrayList<Object> data = new ArrayList<>();
+            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                data.add(snapshot.getValue(ChatMessageModel.class));
+            }
+            if (data.size() > 0) {
+                mListFragment.getAdapter().setData(data);
+            } else {
+                mListFragment.getAdapter().addEmptyState(EmptyStateModel.getChatMessageEmptyState());
+            }
+            mListFragment.scrollToEnd();
+        }
+    }
+
+    @Override
+    public void onCancelled(DatabaseError databaseError) {
+
     }
 }

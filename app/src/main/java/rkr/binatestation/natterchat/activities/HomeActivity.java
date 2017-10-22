@@ -112,6 +112,7 @@ public class HomeActivity extends BaseActivity implements RegistrationListener, 
     private void openUserListFragment() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, UsersListFragment.newInstance())
+                .addToBackStack("")
                 .commit();
     }
 }

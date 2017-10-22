@@ -58,9 +58,11 @@ public class UsersListFragment extends ListFragment implements ValueEventListene
     public void onDataChange(DataSnapshot dataSnapshot) {
         Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot + "]");
         hideProgress();
+        ArrayList<Object> data = new ArrayList<>();
         for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-            getAdapter().add(userSnapshot.getValue(UserModel.class));
+            data.add(userSnapshot.getValue(UserModel.class));
         }
+        getAdapter().setData(data);
     }
 
     @Override
