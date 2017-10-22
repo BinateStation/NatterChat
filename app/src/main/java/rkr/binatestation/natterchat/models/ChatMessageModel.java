@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.format.DateUtils;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.util.Calendar;
 
 import static java.text.DateFormat.LONG;
@@ -14,6 +16,7 @@ import static java.text.DateFormat.SHORT;
  * ChatMessageModel
  */
 
+@IgnoreExtraProperties
 public class ChatMessageModel extends BaseModel implements Parcelable {
 
     public static final Creator<ChatMessageModel> CREATOR = new Creator<ChatMessageModel>() {
@@ -27,33 +30,34 @@ public class ChatMessageModel extends BaseModel implements Parcelable {
             return new ChatMessageModel[size];
         }
     };
-    private long dateTime;
+    private long chatTime;
     private int status;
-    private String userId;
+    private UserModel userModel;
 
     public ChatMessageModel() {
     }
 
-    public ChatMessageModel(String id, String name, long dateTime, int status, String userId) {
+
+    public ChatMessageModel(String id, String name, long chatTime, int status, UserModel userModel) {
         super(id, name);
-        this.dateTime = dateTime;
+        this.chatTime = chatTime;
         this.status = status;
-        this.userId = userId;
+        this.userModel = userModel;
     }
 
-    private ChatMessageModel(Parcel in) {
+    protected ChatMessageModel(Parcel in) {
         super(in);
-        dateTime = in.readLong();
+        chatTime = in.readLong();
         status = in.readInt();
-        userId = in.readString();
+        userModel = in.readParcelable(UserModel.class.getClassLoader());
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeLong(dateTime);
+        dest.writeLong(chatTime);
         dest.writeInt(status);
-        dest.writeString(userId);
+        dest.writeParcelable(userModel, flags);
     }
 
     @Override
@@ -61,12 +65,12 @@ public class ChatMessageModel extends BaseModel implements Parcelable {
         return 0;
     }
 
-    private long getDateTime() {
-        return dateTime;
+    public long getChatTime() {
+        return chatTime;
     }
 
-    public void setDateTime(long dateTime) {
-        this.dateTime = dateTime;
+    public void setChatTime(long chatTime) {
+        this.chatTime = chatTime;
     }
 
     /**
@@ -83,17 +87,17 @@ public class ChatMessageModel extends BaseModel implements Parcelable {
         this.status = status;
     }
 
-    public String getUserId() {
-        return userId;
+    public UserModel getUserModel() {
+        return userModel;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUserModel(UserModel userModel) {
+        this.userModel = userModel;
     }
 
     public String formatSameDayTime() {
         return DateUtils.formatSameDayTime(
-                getDateTime(),
+                getChatTime(),
                 Calendar.getInstance().getTimeInMillis(),
                 LONG,
                 SHORT

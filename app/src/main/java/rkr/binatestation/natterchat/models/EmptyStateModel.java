@@ -50,6 +50,14 @@ public class EmptyStateModel extends BaseModel implements Parcelable {
         return new EmptyStateModel("", "Alert", "Something went wrong, Please try again later !", R.drawable.ic_sentiment_dissatisfied_black_24dp);
     }
 
+    public static EmptyStateModel getChatContactEmptyState() {
+        return new EmptyStateModel("", "Not started", "Start your chat by tap on chat icon below", R.mipmap.ic_launcher);
+    }
+
+    public static EmptyStateModel getChatMessageEmptyState() {
+        return new EmptyStateModel("", "Not started", "Start your chat by type message bellow", R.mipmap.ic_launcher);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof EmptyStateModel) {

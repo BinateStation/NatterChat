@@ -26,10 +26,12 @@ public class UserModel extends BaseModel implements Parcelable {
         }
     };
     private String photo;
+    private String email;
     private String pushToken;
 
     public UserModel(@NonNull FirebaseUser user) {
         super(user.getUid(), user.getDisplayName());
+        this.email = user.getEmail();
         this.photo = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
     }
 
@@ -40,6 +42,7 @@ public class UserModel extends BaseModel implements Parcelable {
     protected UserModel(Parcel in) {
         super(in);
         photo = in.readString();
+        email = in.readString();
         pushToken = in.readString();
     }
 
@@ -47,6 +50,7 @@ public class UserModel extends BaseModel implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeString(photo);
+        dest.writeString(email);
         dest.writeString(pushToken);
     }
 
@@ -56,6 +60,14 @@ public class UserModel extends BaseModel implements Parcelable {
 
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPushToken() {

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import rkr.binatestation.natterchat.adapters.holders.ChatContactViewHolder;
 import rkr.binatestation.natterchat.adapters.holders.ChatMessageViewHolder;
 import rkr.binatestation.natterchat.adapters.holders.EmptyStateViewHolder;
+import rkr.binatestation.natterchat.adapters.holders.UserViewHolder;
 import rkr.binatestation.natterchat.listeners.OnListItemClickListener;
 import rkr.binatestation.natterchat.listeners.OnListItemRemoveListener;
 import rkr.binatestation.natterchat.models.ChatContactModel;
@@ -160,11 +161,11 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return ChatContactViewHolder.LAYOUT_ID;
         } else if (object instanceof UserModel) {
             // Layout id for chat group holder
-            return ChatContactViewHolder.LAYOUT_ID;
+            return UserViewHolder.LAYOUT_ID;
         } else if (object instanceof ChatMessageModel) {
             // Layout id for chat message holder
             ChatMessageModel chatMessageModel = (ChatMessageModel) object;
-            String userId = chatMessageModel.getUserId();
+            String userId = chatMessageModel.getUserModel().getId();
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (!TextUtils.isEmpty(userId) && user != null && userId.equals(user.getUid())) {
                 return ChatMessageViewHolder.LAYOUT_ID_RIGHT;
@@ -189,7 +190,12 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == ChatContactViewHolder.LAYOUT_ID) {
+        if (viewType == UserViewHolder.LAYOUT_ID) {
+            return new UserViewHolder(
+                    LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false),
+                    this
+            );
+        } else if (viewType == ChatContactViewHolder.LAYOUT_ID) {
             return new ChatContactViewHolder(
                     LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false),
                     this
@@ -218,6 +224,10 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder instanceof ChatMessageViewHolder) {
             ChatMessageViewHolder chatMessageViewHolder = (ChatMessageViewHolder) holder;
             chatMessageViewHolder.bindView(getItem(position));
+        }
+        if (holder instanceof UserViewHolder) {
+            UserViewHolder userViewHolder = (UserViewHolder) holder;
+            userViewHolder.bindView(getItem(position));
         }
     }
 

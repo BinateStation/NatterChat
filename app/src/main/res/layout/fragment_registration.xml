@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="rkr.binatestation.natterchat.activities.RegistrationActivity">
+    tools:context="rkr.binatestation.natterchat.fragments.RegistrationFragment">
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/action_google_sign_in"
@@ -14,7 +14,6 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/app_name"
         android:cropToPadding="true"
-        android:src="@drawable/googleg_standard_color_18"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

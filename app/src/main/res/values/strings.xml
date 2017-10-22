@@ -6,4 +6,6 @@
     <string name="neutral">Neutral</string>
     <string name="status">Status</string>
     <string name="pointer_arrow">Pointer arrow</string>
+    <string name="indicator">Indicator</string>
+    <string name="type_a_message">Type a message</string>
 </resources>

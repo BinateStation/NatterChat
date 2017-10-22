@@ -76,6 +76,7 @@ public class UserFragment extends Fragment {
      */
     public void setUserModel(UserModel userModel) {
         setName(userModel.getName());
+        setDescription(userModel.getEmail());
         setProfileImage(userModel.getPhoto());
     }
 

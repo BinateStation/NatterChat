@@ -18,7 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.RegistrationActivity" />
 
         <service
             android:name=".fcm.NatterChatFirebaseInstanceIDService"
@@ -38,7 +37,8 @@
         </service>
 
         <activity android:name=".activities.HomeActivity" />
-        <activity android:name=".activities.SettingsActivity"></activity>
+        <activity android:name=".activities.SettingsActivity" />
+        <activity android:name=".activities.ChatActivity" />
     </application>
 
 </manifest>

@@ -1,13 +1,20 @@
 package rkr.binatestation.natterchat.adapters.holders;
 
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import rkr.binatestation.natterchat.R;
 import rkr.binatestation.natterchat.adapters.ListAdapter;
 import rkr.binatestation.natterchat.models.ChatMessageModel;
+import rkr.binatestation.natterchat.models.Status;
+import rkr.binatestation.natterchat.models.UserModel;
+import rkr.binatestation.natterchat.utils.Utils;
 
 
 /**
@@ -40,34 +47,34 @@ public class ChatMessageViewHolder extends RecyclerView.ViewHolder implements Vi
     public void bindView(Object object) {
         if (object instanceof ChatMessageModel) {
             ChatMessageModel chatMessageModel = (ChatMessageModel) object;
-//            UserModel userModel = chatMessageModel.getUserModel();
-//            messageTextView.setText(chatMessageModel.getMessage());
-//            dateTimeTextView.setText(chatMessageModel.formatSameDayTime());
-//            statusImageView.setVisibility(View.INVISIBLE);
-//            long myId = SessionUtils.getUserId(statusImageView.getContext());
-//            if (userModel != null) {
-//                Utils.setGlideCircleImageProfile(userProfileImageView, userModel.getProfileImage());
-//                if (myId == userModel.getId()) {
-//                    statusImageView.setVisibility(View.VISIBLE);
-//                    switch (Status.fromValue(chatMessageModel.getStatus())) {
-//                        case SEND:
-//                            statusImageView.setImageResource(R.drawable.ic_done_black_24dp);
-//                            statusImageView.setColorFilter(ContextCompat.getColor(statusImageView.getContext(), android.R.color.black));
-//                            break;
-//                        case RECEIVED:
-//                            statusImageView.setImageResource(R.drawable.ic_done_all_black_24dp);
-//                            statusImageView.setColorFilter(ContextCompat.getColor(statusImageView.getContext(), android.R.color.black));
-//                            break;
-//                        case READ:
-//                            statusImageView.setImageResource(R.drawable.ic_done_all_black_24dp);
-//                            statusImageView.setColorFilter(ContextCompat.getColor(statusImageView.getContext(), R.color.colorAccent));
-//                            break;
-//                        default:
-//                            statusImageView.setImageResource(R.drawable.ic_access_time_black_24dp);
-//                            statusImageView.setColorFilter(ContextCompat.getColor(statusImageView.getContext(), android.R.color.black));
-//                    }
-//                }
-//            }
+            UserModel userModel = chatMessageModel.getUserModel();
+            messageTextView.setText(chatMessageModel.getName());
+            dateTimeTextView.setText(chatMessageModel.formatSameDayTime());
+            statusImageView.setVisibility(View.INVISIBLE);
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (userModel != null && user != null) {
+                Utils.setGlideCircleImageProfile(userProfileImageView, userModel.getPhoto());
+                if (user.getUid().equals(userModel.getId())) {
+                    statusImageView.setVisibility(View.VISIBLE);
+                    switch (Status.fromValue(chatMessageModel.getStatus())) {
+                        case SEND:
+                            statusImageView.setImageResource(R.drawable.ic_done_black_24dp);
+                            statusImageView.setColorFilter(ContextCompat.getColor(statusImageView.getContext(), android.R.color.black));
+                            break;
+                        case RECEIVED:
+                            statusImageView.setImageResource(R.drawable.ic_done_all_black_24dp);
+                            statusImageView.setColorFilter(ContextCompat.getColor(statusImageView.getContext(), android.R.color.black));
+                            break;
+                        case READ:
+                            statusImageView.setImageResource(R.drawable.ic_done_all_black_24dp);
+                            statusImageView.setColorFilter(ContextCompat.getColor(statusImageView.getContext(), R.color.colorAccent));
+                            break;
+                        default:
+                            statusImageView.setImageResource(R.drawable.ic_access_time_black_24dp);
+                            statusImageView.setColorFilter(ContextCompat.getColor(statusImageView.getContext(), android.R.color.black));
+                    }
+                }
+            }
         }
     }
 

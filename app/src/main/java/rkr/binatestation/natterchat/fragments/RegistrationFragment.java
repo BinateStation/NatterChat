@@ -1,10 +1,14 @@
-package rkr.binatestation.natterchat.activities;
+package rkr.binatestation.natterchat.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -21,29 +25,47 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import rkr.binatestation.natterchat.R;
-import rkr.binatestation.natterchat.models.UserModel;
-import rkr.binatestation.natterchat.utils.SessionUtils;
+import rkr.binatestation.natterchat.listeners.RegistrationListener;
 
-import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_USERS;
-
-public class RegistrationActivity extends BaseActivity implements GoogleApiClient.OnConnectionFailedListener,
+public class RegistrationFragment extends BaseFragment implements GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
 
-    private static final String TAG = "RegistrationActivity";
+    private static final String TAG = "RegistrationFragment";
     private static final int RC_SIGN_IN = 89;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private GoogleApiClient mGoogleApiClient;
     private ProgressBar mProgressBar;
+    private RegistrationListener mListener;
+
+    public static RegistrationFragment newInstance() {
+
+        Bundle args = new Bundle();
+
+        RegistrationFragment fragment = new RegistrationFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof RegistrationListener) {
+            mListener = (RegistrationListener) context;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration);
 
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -52,15 +74,10 @@ public class RegistrationActivity extends BaseActivity implements GoogleApiClien
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
+                    if (mListener != null) {
+                        mListener.onSuccessRegistration(user);
+                    }
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    UserModel userModel = new UserModel(user);
-                    userModel.setPushToken(SessionUtils.getPushToken(RegistrationActivity.this));
-                    FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    DatabaseReference myRef = database.getReference();
-
-                    myRef.child(KEY_TABLE_USERS).child(userModel.getId()).setValue(userModel);
-                    startActivity(new Intent(RegistrationActivity.this, SplashScreenActivity.class));
-                    finish();
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -68,19 +85,31 @@ public class RegistrationActivity extends BaseActivity implements GoogleApiClien
             }
         };
 
+
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+                .enableAutoManage(getActivity() /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
+    }
 
-        View googleLoginView = findViewById(R.id.action_google_sign_in);
-        mProgressBar = findViewById(R.id.progress_bar);
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_registration, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        View googleLoginView = view.findViewById(R.id.action_google_sign_in);
+        mProgressBar = view.findViewById(R.id.progress_bar);
         googleLoginView.setOnClickListener(this);
     }
 
@@ -124,8 +153,9 @@ public class RegistrationActivity extends BaseActivity implements GoogleApiClien
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
             } else {
-                // Google Sign In failed, update UI appropriately
-                // ...
+                if (mListener != null) {
+                    mListener.onRegistrationFailed();
+                }
             }
         }
     }
@@ -135,31 +165,33 @@ public class RegistrationActivity extends BaseActivity implements GoogleApiClien
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-//                            updateUI(user);
+                            if (mListener != null) {
+                                mListener.onSuccessRegistration(user);
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(RegistrationActivity.this, "Authentication failed.",
+                            Toast.makeText(getContext(), "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-//                            updateUI(null);
+                            if (mListener != null) {
+                                mListener.onRegistrationFailed();
+                            }
                         }
                         hideProgress();
-
-                        // ...
                     }
                 });
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Google Play Services error.", Toast.LENGTH_SHORT).show();
         hideProgress();
     }
 
