@@ -25,9 +25,15 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import rkr.binatestation.natterchat.R;
 import rkr.binatestation.natterchat.listeners.RegistrationListener;
+import rkr.binatestation.natterchat.models.UserModel;
+import rkr.binatestation.natterchat.utils.SessionUtils;
+
+import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_USERS;
 
 public class RegistrationFragment extends BaseFragment implements GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
@@ -177,9 +183,19 @@ public class RegistrationFragment extends BaseFragment implements GoogleApiClien
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInWithCredential:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                if (mListener != null) {
-                                    mListener.onSuccessRegistration(user);
+
+                                if (user != null && getContext() != null) {
+                                    UserModel userModel = new UserModel(user);
+                                    userModel.setPushToken(SessionUtils.getPushToken(getContext()));
+                                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                    DatabaseReference myRef = database.getReference();
+
+                                    myRef.child(KEY_TABLE_USERS).child(userModel.getId()).setValue(userModel);
+                                    if (mListener != null) {
+                                        mListener.onSuccessRegistration(user);
+                                    }
                                 }
+
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "signInWithCredential:failure", task.getException());

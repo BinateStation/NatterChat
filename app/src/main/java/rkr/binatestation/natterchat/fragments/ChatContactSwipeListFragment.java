@@ -83,11 +83,6 @@ public class ChatContactSwipeListFragment extends SwipeListFragment implements V
         super.onViewCreated(view, savedInstanceState);
         View actionUserListView = view.findViewById(R.id.action_pick_contact);
         actionUserListView.setOnClickListener(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         loadContacts();
     }
 
@@ -96,8 +91,7 @@ public class ChatContactSwipeListFragment extends SwipeListFragment implements V
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         Query usersQuery = mDatabase.child(KEY_TABLE_CHATS)
                 .orderByChild("id")
-                .startAt(mUserModel.getId())
-                .endAt("\uf8ff" + mUserModel.getId() + "\uf8ff");
+                .equalTo(mUserModel.getId());
         usersQuery.keepSynced(true);
         usersQuery.addValueEventListener(this);
     }
