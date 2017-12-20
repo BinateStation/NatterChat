@@ -2,6 +2,7 @@ package rkr.binatestation.natterchat.fragments;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,17 +26,17 @@ import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_USERS;
 
 /**
  * Created by RKR on 22-10-2017.
- * UsersListFragment
+ * UsersSwipeListFragment
  */
 
-public class UsersListFragment extends ListFragment implements ValueEventListener, OnListItemClickListener {
-    private static final String TAG = "UsersListFragment";
+public class UsersSwipeListFragment extends SwipeListFragment implements ValueEventListener, OnListItemClickListener {
+    private static final String TAG = "UsersSwipeListFragment";
 
-    public static UsersListFragment newInstance() {
+    public static UsersSwipeListFragment newInstance() {
 
         Bundle args = new Bundle();
 
-        UsersListFragment fragment = new UsersListFragment();
+        UsersSwipeListFragment fragment = new UsersSwipeListFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -43,7 +44,7 @@ public class UsersListFragment extends ListFragment implements ValueEventListene
     @Override
     public void onResume() {
         super.onResume();
-        getAdapter().add(EmptyStateModel.getUnKnownEmptyModel());
+        getAdapter().setData(EmptyStateModel.getEmptyDataModels(EmptyStateModel.getUnKnownEmptyModel()));
         loadUsers();
     }
 
@@ -72,7 +73,7 @@ public class UsersListFragment extends ListFragment implements ValueEventListene
     }
 
     @Override
-    public void onClickItem(Object object, int position) {
+    public void onClickItem(Object object, int position, View actionView) {
         navigateToChatActivity(object);
     }
 

@@ -25,11 +25,14 @@ import rkr.binatestation.natterchat.utils.Utils;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class UserFragment extends Fragment {
+public class UserFragment extends BaseFragment {
+    public static final String TAG = "UserFragment";
+    private static final String KEY_USER_MODEL = "USER_MODEL";
     private ImageView mProfileImageView;
     private TextView mNameTextView;
     private TextView mDescriptionTextView;
     private View mRootView;
+    private UserModel mUserModel;
 
     public UserFragment() {
         // Required empty public constructor
@@ -49,11 +52,32 @@ public class UserFragment extends Fragment {
         return fragment;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    /**
+     * gets the instance of UserFragment
+     *
+     * @return UserFragment
+     */
+    public static UserFragment newInstance(UserModel userModel) {
 
+        Bundle args = new Bundle();
+        args.putParcelable(KEY_USER_MODEL, userModel);
+        UserFragment fragment = new UserFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            mUserModel = bundle.getParcelable(KEY_USER_MODEL);
+        }
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_user, container, false);
         }
@@ -67,6 +91,9 @@ public class UserFragment extends Fragment {
         mNameTextView = view.findViewById(R.id.name);
         mDescriptionTextView = view.findViewById(R.id.description);
 
+        if (mUserModel != null) {
+            setUserModel(mUserModel);
+        }
     }
 
     /**
@@ -75,6 +102,7 @@ public class UserFragment extends Fragment {
      * @param userModel UserModel value
      */
     public void setUserModel(UserModel userModel) {
+        mUserModel = userModel;
         setName(userModel.getName());
         setDescription(userModel.getEmail());
         setProfileImage(userModel.getPhoto());
@@ -100,7 +128,7 @@ public class UserFragment extends Fragment {
      * @param color int value
      */
     public void setNameColor(@ColorRes int color) {
-        if (mNameTextView != null) {
+        if (mNameTextView != null && getContext() != null) {
             mNameTextView.setTextColor(ContextCompat.getColor(getContext(), color));
         }
 
@@ -112,7 +140,7 @@ public class UserFragment extends Fragment {
      * @param color int value
      */
     public void setDescriptionColor(@ColorRes int color) {
-        if (mDescriptionTextView != null) {
+        if (mDescriptionTextView != null && getContext() != null) {
             mDescriptionTextView.setTextColor(ContextCompat.getColor(getContext(), color));
         }
     }
@@ -123,7 +151,7 @@ public class UserFragment extends Fragment {
      * @param color int value
      */
     public void setBackgroundColor(@ColorRes int color) {
-        if (mRootView != null) {
+        if (mRootView != null && getContext() != null) {
             mRootView.setBackgroundColor(ContextCompat.getColor(getContext(), color));
         }
     }

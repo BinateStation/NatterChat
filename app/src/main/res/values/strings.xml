@@ -8,4 +8,5 @@
     <string name="pointer_arrow">Pointer arrow</string>
     <string name="indicator">Indicator</string>
     <string name="type_a_message">Type a message</string>
+    <string name="registration_failed_msg">User registration failed</string>
 </resources>

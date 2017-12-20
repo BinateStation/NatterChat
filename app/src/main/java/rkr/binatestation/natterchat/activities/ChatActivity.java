@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -20,10 +21,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import rkr.binatestation.natterchat.R;
-import rkr.binatestation.natterchat.fragments.ListFragment;
+import rkr.binatestation.natterchat.fragments.SwipeListFragment;
 import rkr.binatestation.natterchat.models.ChatContactModel;
 import rkr.binatestation.natterchat.models.ChatMessageModel;
-import rkr.binatestation.natterchat.models.EmptyStateModel;
 import rkr.binatestation.natterchat.models.Status;
 import rkr.binatestation.natterchat.models.UserModel;
 import rkr.binatestation.natterchat.utils.SessionUtils;
@@ -34,7 +34,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
     private static final String KEY_CHAT_CONTACT_MODEL = "CHAT_CONTACT_MODEL";
     private static final String TAG = "ChatActivity";
-    private ListFragment mListFragment;
+    private SwipeListFragment mSwipeListFragment;
     private EditText mFieldMessageEditText;
     private ChatContactModel mChatContactModel;
 
@@ -52,9 +52,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         mChatContactModel = getIntent().getParcelableExtra(KEY_CHAT_CONTACT_MODEL);
         mFieldMessageEditText = findViewById(R.id.field_message);
         View actionSendMessage = findViewById(R.id.action_send_message);
-        mListFragment = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
-        if (mListFragment != null) {
-            mListFragment.getLinearLayoutManager().setStackFromEnd(true);
+        mSwipeListFragment = (SwipeListFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
+        if (mSwipeListFragment != null) {
+            mSwipeListFragment.getLinearLayoutManager().setStackFromEnd(true);
             loadContacts();
         }
 
@@ -62,6 +62,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private void loadContacts() {
+        Log.d(TAG, "loadContacts() called");
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         Query usersQuery = mDatabase.child(KEY_TABLE_CHATS)
                 .child(mChatContactModel.getId())
@@ -123,15 +124,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     sender
             );
             mFieldMessageEditText.setText("");
-            addMessage(chatMessageModel);
             sendMessage(chatMessageModel);
-        }
-    }
-
-    private void addMessage(ChatMessageModel chatMessageModel) {
-        if (mListFragment != null) {
-            mListFragment.getAdapter().add(chatMessageModel);
-            mListFragment.scrollToEnd();
         }
     }
 
@@ -145,17 +138,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public void onDataChange(DataSnapshot dataSnapshot) {
-        if (mListFragment != null) {
+        if (mSwipeListFragment != null) {
             ArrayList<Object> data = new ArrayList<>();
             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                 data.add(snapshot.getValue(ChatMessageModel.class));
             }
-            if (data.size() > 0) {
-                mListFragment.getAdapter().setData(data);
-            } else {
-                mListFragment.getAdapter().addEmptyState(EmptyStateModel.getChatMessageEmptyState());
-            }
-            mListFragment.scrollToEnd();
+            mSwipeListFragment.getAdapter().setData(data);
+            mSwipeListFragment.scrollToEnd();
         }
     }
 

@@ -37,7 +37,7 @@
         </service>
 
         <activity android:name=".activities.HomeActivity" />
-        <activity android:name=".activities.SettingsActivity" />
+        <activity android:name=".activities.DetailsActivity" />
         <activity android:name=".activities.ChatActivity" />
     </application>
 

@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/list_fragment"
-        class="rkr.binatestation.natterchat.fragments.ListFragment"
+        class="rkr.binatestation.natterchat.fragments.SwipeListFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
@@ -20,7 +20,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_list" />
+        tools:layout="@layout/fragment_swipe_list" />
 
 
     <EditText

@@ -1,11 +1,11 @@
 package rkr.binatestation.natterchat.adapters.holders;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import rkr.binatestation.natterchat.R;
+import rkr.binatestation.natterchat.adapters.RecyclerViewAdapter;
 import rkr.binatestation.natterchat.models.EmptyStateModel;
 
 
@@ -14,15 +14,15 @@ import rkr.binatestation.natterchat.models.EmptyStateModel;
  * EmptyStateViewHolder
  */
 
-public class EmptyStateViewHolder extends RecyclerView.ViewHolder {
+public class EmptyStateViewHolder extends RecyclerViewAdapterBaseViewHolder {
     public static final int LAYOUT_ID = R.layout.adapter_empty_state;
 
     private ImageView iconImageView;
     private TextView titleTextView;
     private TextView messageTextView;
 
-    public EmptyStateViewHolder(View itemView) {
-        super(itemView);
+    public EmptyStateViewHolder(View itemView, RecyclerViewAdapter adapter) {
+        super(itemView, adapter);
 
         iconImageView = itemView.findViewById(R.id.icon);
         titleTextView = itemView.findViewById(R.id.title);

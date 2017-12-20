@@ -2,9 +2,9 @@ package rkr.binatestation.natterchat.fragments;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,17 +12,17 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import rkr.binatestation.natterchat.R;
-import rkr.binatestation.natterchat.adapters.ListAdapter;
+import rkr.binatestation.natterchat.adapters.RecyclerViewAdapter;
+import rkr.binatestation.natterchat.listeners.OnListItemClickListener;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ListFragment extends BaseFragment {
+public class ListFragment extends BaseFragment implements OnListItemClickListener {
 
-    private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
-    private ListAdapter mAdapter;
+    private RecyclerViewAdapter mAdapter;
     private LinearLayoutManager mLinearLayoutManager;
 
     public ListFragment() {
@@ -37,8 +37,7 @@ public class ListFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_list, container, false);
     }
@@ -47,7 +46,6 @@ public class ListFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         mRecyclerView = view.findViewById(R.id.recycler_view);
 
         mRecyclerView.setLayoutManager(mLinearLayoutManager = new LinearLayoutManager(getContext()));
@@ -63,13 +61,10 @@ public class ListFragment extends BaseFragment {
         return mRecyclerView;
     }
 
-    public SwipeRefreshLayout getSwipeRefreshLayout() {
-        return mSwipeRefreshLayout;
-    }
-
-    public ListAdapter getAdapter() {
+    public RecyclerViewAdapter getAdapter() {
         if (mAdapter == null) {
-            mAdapter = new ListAdapter(this);
+            mAdapter = new RecyclerViewAdapter();
+            mAdapter.setClickListener(this);
         }
         return mAdapter;
     }
@@ -79,15 +74,8 @@ public class ListFragment extends BaseFragment {
         getLinearLayoutManager().scrollToPosition(getAdapter().getItemCount() - 1);
     }
 
-    public void showProgress() {
-        if (mSwipeRefreshLayout != null) {
-            showProgress(mSwipeRefreshLayout);
-        }
-    }
+    @Override
+    public void onClickItem(Object object, int position, View actionView) {
 
-    public void hideProgress() {
-        if (mSwipeRefreshLayout != null) {
-            hideProgress(mSwipeRefreshLayout);
-        }
     }
 }

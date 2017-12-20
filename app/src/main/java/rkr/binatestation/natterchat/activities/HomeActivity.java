@@ -7,21 +7,14 @@ import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import rkr.binatestation.natterchat.R;
-import rkr.binatestation.natterchat.fragments.ChatContactListFragment;
-import rkr.binatestation.natterchat.fragments.RegistrationFragment;
-import rkr.binatestation.natterchat.fragments.UsersListFragment;
+import rkr.binatestation.natterchat.fragments.ChatContactSwipeListFragment;
+import rkr.binatestation.natterchat.fragments.UsersSwipeListFragment;
 import rkr.binatestation.natterchat.listeners.ChatContactFragmentListener;
-import rkr.binatestation.natterchat.listeners.RegistrationListener;
 import rkr.binatestation.natterchat.models.UserModel;
-import rkr.binatestation.natterchat.utils.SessionUtils;
 
-import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_USERS;
-
-public class HomeActivity extends BaseActivity implements RegistrationListener, ChatContactFragmentListener {
+public class HomeActivity extends BaseActivity implements ChatContactFragmentListener {
 
     private Intent mSettingsIntent;
 
@@ -31,16 +24,10 @@ public class HomeActivity extends BaseActivity implements RegistrationListener, 
         setContentView(R.layout.activity_home);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
-            loadRegistrationFragment();
+            signOut();
         } else {
             loadChatContactListFragment(new UserModel(user));
         }
-    }
-
-    private void loadRegistrationFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, RegistrationFragment.newInstance())
-                .commit();
     }
 
 
@@ -68,7 +55,12 @@ public class HomeActivity extends BaseActivity implements RegistrationListener, 
 
     private Intent getSettingsIntent() {
         if (mSettingsIntent == null) {
-            mSettingsIntent = new Intent(this, SettingsActivity.class);
+            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            UserModel userModel = null;
+            if (firebaseUser != null) {
+                userModel = new UserModel(firebaseUser);
+            }
+            mSettingsIntent = DetailsActivity.newInstance(this, userModel);
         }
         return mSettingsIntent;
     }
@@ -80,27 +72,11 @@ public class HomeActivity extends BaseActivity implements RegistrationListener, 
         finish();
     }
 
-    @Override
-    public void onSuccessRegistration(FirebaseUser user) {
-
-        UserModel userModel = new UserModel(user);
-        userModel.setPushToken(SessionUtils.getPushToken(this));
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference();
-
-        myRef.child(KEY_TABLE_USERS).child(userModel.getId()).setValue(userModel);
-        loadChatContactListFragment(userModel);
-    }
 
     private void loadChatContactListFragment(UserModel userModel) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, ChatContactListFragment.newInstance(userModel))
+                .replace(R.id.container, ChatContactSwipeListFragment.newInstance(userModel))
                 .commit();
-
-    }
-
-    @Override
-    public void onRegistrationFailed() {
 
     }
 
@@ -111,7 +87,7 @@ public class HomeActivity extends BaseActivity implements RegistrationListener, 
 
     private void openUserListFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, UsersListFragment.newInstance())
+                .replace(R.id.container, UsersSwipeListFragment.newInstance())
                 .addToBackStack("")
                 .commit();
     }

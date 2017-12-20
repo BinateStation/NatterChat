@@ -3,6 +3,7 @@ package rkr.binatestation.natterchat.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,9 +22,7 @@ import java.util.ArrayList;
 import rkr.binatestation.natterchat.R;
 import rkr.binatestation.natterchat.activities.ChatActivity;
 import rkr.binatestation.natterchat.listeners.ChatContactFragmentListener;
-import rkr.binatestation.natterchat.listeners.OnListItemClickListener;
 import rkr.binatestation.natterchat.models.ChatContactModel;
-import rkr.binatestation.natterchat.models.EmptyStateModel;
 import rkr.binatestation.natterchat.models.UserModel;
 
 import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_CHATS;
@@ -31,22 +30,22 @@ import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_CHATS;
 /**
  * Fragment to list the contact list
  */
-public class ChatContactListFragment extends ListFragment implements ValueEventListener, View.OnClickListener, OnListItemClickListener {
-    private static final String TAG = "ChatContactListFragment";
+public class ChatContactSwipeListFragment extends SwipeListFragment implements ValueEventListener, View.OnClickListener {
+    private static final String TAG = "ChatContactSwipeListFra";
     private static final String KEY_USER_MODEL = "USER_MODEL";
 
     private ChatContactFragmentListener mListener;
     private UserModel mUserModel;
 
-    public ChatContactListFragment() {
+    public ChatContactSwipeListFragment() {
         // Required empty public constructor
     }
 
-    public static ChatContactListFragment newInstance(UserModel userModel) {
+    public static ChatContactSwipeListFragment newInstance(UserModel userModel) {
         Log.d(TAG, "newInstance() called with: userModel = [" + userModel + "]");
         Bundle args = new Bundle();
         args.putParcelable(KEY_USER_MODEL, userModel);
-        ChatContactListFragment fragment = new ChatContactListFragment();
+        ChatContactSwipeListFragment fragment = new ChatContactSwipeListFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -75,7 +74,7 @@ public class ChatContactListFragment extends ListFragment implements ValueEventL
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_chat_contact_list, container, false);
     }
 
@@ -111,11 +110,7 @@ public class ChatContactListFragment extends ListFragment implements ValueEventL
         for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
             data.add(userSnapshot.getValue(ChatContactModel.class));
         }
-        if (data.size() > 0) {
-            getAdapter().setData(data);
-        } else {
-            getAdapter().add(EmptyStateModel.getChatContactEmptyState());
-        }
+        getAdapter().setData(data);
     }
 
     @Override
@@ -133,9 +128,9 @@ public class ChatContactListFragment extends ListFragment implements ValueEventL
         }
     }
 
-
     @Override
-    public void onClickItem(Object object, int position) {
+    public void onClickItem(Object object, int position, View actionView) {
+        super.onClickItem(object, position, actionView);
         if (object instanceof ChatContactModel) {
             ChatContactModel chatContactModel = (ChatContactModel) object;
             navigateToChatActivity(chatContactModel);

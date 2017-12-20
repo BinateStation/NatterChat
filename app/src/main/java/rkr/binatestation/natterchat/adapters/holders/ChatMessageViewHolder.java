@@ -1,7 +1,6 @@
 package rkr.binatestation.natterchat.adapters.holders;
 
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -10,7 +9,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import rkr.binatestation.natterchat.R;
-import rkr.binatestation.natterchat.adapters.ListAdapter;
+import rkr.binatestation.natterchat.adapters.RecyclerViewAdapter;
 import rkr.binatestation.natterchat.models.ChatMessageModel;
 import rkr.binatestation.natterchat.models.Status;
 import rkr.binatestation.natterchat.models.UserModel;
@@ -22,19 +21,17 @@ import rkr.binatestation.natterchat.utils.Utils;
  * ChatMessageViewHolder
  */
 
-public class ChatMessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class ChatMessageViewHolder extends RecyclerViewAdapterBaseViewHolder {
     public static final int LAYOUT_ID_RIGHT = R.layout.adapter_chat_message_right;
     public static final int LAYOUT_ID_LEFT = R.layout.adapter_chat_message_left;
 
-    private final ListAdapter mListAdapter;
     private TextView messageTextView;
     private TextView dateTimeTextView;
     private ImageView userProfileImageView;
     private ImageView statusImageView;
 
-    public ChatMessageViewHolder(View itemView, ListAdapter listAdapter) {
-        super(itemView);
-        this.mListAdapter = listAdapter;
+    public ChatMessageViewHolder(View itemView, RecyclerViewAdapter recyclerViewAdapter) {
+        super(itemView, recyclerViewAdapter);
 
         messageTextView = itemView.findViewById(R.id.message);
         dateTimeTextView = itemView.findViewById(R.id.date_time);
@@ -75,14 +72,6 @@ public class ChatMessageViewHolder extends RecyclerView.ViewHolder implements Vi
                     }
                 }
             }
-        }
-    }
-
-    @Override
-    public void onClick(View view) {
-        int position = getAdapterPosition();
-        if (position != RecyclerView.NO_POSITION && mListAdapter != null && mListAdapter.getClickListener() != null) {
-            mListAdapter.getClickListener().onClickItem(mListAdapter.getItem(position), position);
         }
     }
 }
