@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,7 @@ public class RegistrationFragment extends BaseFragment implements GoogleApiClien
         View.OnClickListener {
 
     private static final String TAG = "RegistrationFragment";
+    private static final String KEY_PHONE_NUMBER = "PHONE_NUMBER";
     private static final int RC_SIGN_IN = 89;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -46,10 +48,10 @@ public class RegistrationFragment extends BaseFragment implements GoogleApiClien
     private ProgressBar mProgressBar;
     private RegistrationListener mListener;
 
-    public static RegistrationFragment newInstance() {
+    public static RegistrationFragment newInstance(String phoneNumber) {
 
         Bundle args = new Bundle();
-
+        args.putString(KEY_PHONE_NUMBER, phoneNumber);
         RegistrationFragment fragment = new RegistrationFragment();
         fragment.setArguments(args);
         return fragment;
@@ -78,7 +80,7 @@ public class RegistrationFragment extends BaseFragment implements GoogleApiClien
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
+                if (user != null && !TextUtils.isEmpty(user.getDisplayName())) {
                     // User is signed in
                     if (mListener != null) {
                         mListener.onSuccessRegistration(user);
@@ -185,7 +187,7 @@ public class RegistrationFragment extends BaseFragment implements GoogleApiClien
                                 FirebaseUser user = mAuth.getCurrentUser();
 
                                 if (user != null && getContext() != null) {
-                                    UserModel userModel = new UserModel(user);
+                                    UserModel userModel = new UserModel(user, getArguments() == null ? "" : getArguments().getString(KEY_PHONE_NUMBER));
                                     userModel.setPushToken(SessionUtils.getPushToken(getContext()));
                                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                                     DatabaseReference myRef = database.getReference();

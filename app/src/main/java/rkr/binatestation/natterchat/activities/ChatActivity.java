@@ -67,7 +67,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private void setReceiverChatContactModel() {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser != null) {
-            UserModel receiver = new UserModel(firebaseUser);
+            UserModel receiver = new UserModel(firebaseUser, SessionUtils.getPhoneNumber(this));
             mChatContactModelReceiver = new ChatContactModel(
                     receiver.getId(),
                     receiver.getName(),
@@ -131,7 +131,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         long time = Calendar.getInstance().getTimeInMillis();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            UserModel sender = new UserModel(user);
+            UserModel sender = new UserModel(user, SessionUtils.getPhoneNumber(this));
             ChatMessageModel chatMessageModel = new ChatMessageModel(
                     sender.getId() + time,
                     message,

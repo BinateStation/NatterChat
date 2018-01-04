@@ -12,7 +12,7 @@ import rkr.binatestation.natterchat.fragments.dialogs.AlertDialogFragment;
 import rkr.binatestation.natterchat.fragments.dialogs.ProgressDialogFragment;
 
 
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity {
 
     public static final String TAG_PROGRESS_DIALOG = "progress_dialog";
     private boolean showDialog;

@@ -16,6 +16,7 @@ import rkr.binatestation.natterchat.listeners.ChatContactFragmentListener;
 import rkr.binatestation.natterchat.models.ChatContactModel;
 import rkr.binatestation.natterchat.models.ChatMessageModel;
 import rkr.binatestation.natterchat.models.UserModel;
+import rkr.binatestation.natterchat.utils.SessionUtils;
 
 public class HomeActivity extends BaseActivity implements ChatContactFragmentListener {
 
@@ -29,7 +30,7 @@ public class HomeActivity extends BaseActivity implements ChatContactFragmentLis
         if (user == null) {
             signOut();
         } else {
-            loadChatContactListFragment(new UserModel(user));
+            loadChatContactListFragment(new UserModel(user, SessionUtils.getPhoneNumber(this)));
         }
     }
 
@@ -56,7 +57,7 @@ public class HomeActivity extends BaseActivity implements ChatContactFragmentLis
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         UserModel userModel = null;
         if (firebaseUser != null) {
-            userModel = new UserModel(firebaseUser);
+            userModel = new UserModel(firebaseUser, SessionUtils.getPhoneNumber(this));
         }
         startActivity(getDetailsActivityIntent(userModel));
     }
@@ -70,6 +71,7 @@ public class HomeActivity extends BaseActivity implements ChatContactFragmentLis
 
     private void signOut() {
         // Firebase sign out
+        SessionUtils.logout(this);
         FirebaseAuth.getInstance().signOut();
         startActivity(new Intent(this, SplashScreenActivity.class));
         finish();

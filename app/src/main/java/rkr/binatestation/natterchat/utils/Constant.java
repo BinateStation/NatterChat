@@ -12,5 +12,6 @@ public class Constant {
 
     public static final String KEY_RECEIVER_ID = "RECEIVER_ID";
     public static final String KEY_PUSH_TOKEN = "PUSH_TOKEN";
+    public static final String KEY_PHONE_NUMBER = "PHONE_NUMBER";
     public static final String KEY_ACTION_CHAT_MESSAGE = "rkr.binatestation.natterchat.activities.ACTION_CHAT_MESSAGE";
 }

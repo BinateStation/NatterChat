@@ -30,14 +30,16 @@ public class UserModel extends BaseModel implements Parcelable {
     };
     private String photo;
     private String email;
+    private String phoneNumber;
     private String pushToken;
     private ArrayList<ChatContactModel> chatContacts;
 
 
-    public UserModel(@NonNull FirebaseUser user) {
+    public UserModel(@NonNull FirebaseUser user, String phoneNumber) {
         super(user.getUid(), user.getDisplayName());
         this.email = user.getEmail();
         this.photo = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+        this.phoneNumber = phoneNumber;
         this.chatContacts = new ArrayList<>();
     }
 
@@ -49,6 +51,7 @@ public class UserModel extends BaseModel implements Parcelable {
         super(in);
         photo = in.readString();
         email = in.readString();
+        phoneNumber = in.readString();
         pushToken = in.readString();
         chatContacts = in.createTypedArrayList(ChatContactModel.CREATOR);
     }
@@ -58,6 +61,7 @@ public class UserModel extends BaseModel implements Parcelable {
         super.writeToParcel(dest, flags);
         dest.writeString(photo);
         dest.writeString(email);
+        dest.writeString(phoneNumber);
         dest.writeString(pushToken);
         dest.writeTypedList(chatContacts);
     }
@@ -76,6 +80,14 @@ public class UserModel extends BaseModel implements Parcelable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getPushToken() {
