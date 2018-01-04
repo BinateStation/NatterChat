@@ -29,6 +29,7 @@ import rkr.binatestation.natterchat.models.UserModel;
 import rkr.binatestation.natterchat.utils.SessionUtils;
 
 import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_CHATS;
+import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_USERS;
 
 public class ChatActivity extends BaseActivity implements View.OnClickListener, ValueEventListener {
 
@@ -36,7 +37,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private static final String TAG = "ChatActivity";
     private SwipeListFragment mSwipeListFragment;
     private EditText mFieldMessageEditText;
-    private ChatContactModel mChatContactModel;
+    private ChatContactModel mChatContactModelSender;
+    private ChatContactModel mChatContactModelReceiver;
 
     public static Intent newInstance(Context context, ChatContactModel chatContactModel) {
         Intent intent = new Intent(context, ChatActivity.class);
@@ -49,23 +51,37 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         setBackActionEnabled();
-        mChatContactModel = getIntent().getParcelableExtra(KEY_CHAT_CONTACT_MODEL);
+        mChatContactModelSender = getIntent().getParcelableExtra(KEY_CHAT_CONTACT_MODEL);
+        setReceiverChatContactModel();
         mFieldMessageEditText = findViewById(R.id.field_message);
         View actionSendMessage = findViewById(R.id.action_send_message);
         mSwipeListFragment = (SwipeListFragment) getSupportFragmentManager().findFragmentById(R.id.list_fragment);
         if (mSwipeListFragment != null) {
             mSwipeListFragment.getLinearLayoutManager().setStackFromEnd(true);
-            loadContacts();
+            loadMessages();
         }
 
         actionSendMessage.setOnClickListener(this);
     }
 
-    private void loadContacts() {
-        Log.d(TAG, "loadContacts() called");
+    private void setReceiverChatContactModel() {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null) {
+            UserModel receiver = new UserModel(firebaseUser);
+            mChatContactModelReceiver = new ChatContactModel(
+                    receiver.getId(),
+                    receiver.getName(),
+                    receiver,
+                    new ArrayList<ChatMessageModel>()
+            );
+        }
+    }
+
+    private void loadMessages() {
+        Log.d(TAG, "loadMessages() called");
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         Query usersQuery = mDatabase.child(KEY_TABLE_CHATS)
-                .child(mChatContactModel.getId())
+                .child(mChatContactModelSender.getId())
                 .child("chatMessages")
                 .limitToFirst(100);
         usersQuery.keepSynced(true);
@@ -76,11 +92,11 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mChatContactModel != null) {
+        if (mChatContactModelSender != null) {
             SessionUtils.setChatResumed(
                     this,
                     true,
-                    mChatContactModel.getReceiver().getId()
+                    mChatContactModelSender.getReceiver().getId()
             );
         }
     }
@@ -130,10 +146,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 
     private void sendMessage(ChatMessageModel chatMessageModel) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference();
+        DatabaseReference myRef = database.getReference(KEY_TABLE_USERS);
         chatMessageModel.setStatus(Status.SEND.getValue());
-        mChatContactModel.getChatMessages().add(chatMessageModel);
-        myRef.child(KEY_TABLE_CHATS).child(mChatContactModel.getId()).setValue(mChatContactModel);
+        mChatContactModelSender.getChatMessages().add(chatMessageModel);
+        mChatContactModelReceiver.getChatMessages().add(chatMessageModel);
+        myRef.child(mChatContactModelSender.getId()).child(KEY_TABLE_CHATS).child(mChatContactModelSender.getId()).setValue(mChatContactModelSender);
+        myRef.child(mChatContactModelReceiver.getId()).child(KEY_TABLE_CHATS).child(mChatContactModelReceiver.getId()).setValue(mChatContactModelReceiver);
     }
 
     @Override

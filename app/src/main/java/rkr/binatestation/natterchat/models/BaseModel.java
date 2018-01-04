@@ -26,16 +26,16 @@ public class BaseModel implements Parcelable {
     private String id;
     private String name;
 
-    public BaseModel() {
+    BaseModel() {
     }
 
-    public BaseModel(String id, String name) {
+    BaseModel(String id, String name) {
         this.id = id;
         this.name = name;
     }
 
 
-    protected BaseModel(Parcel in) {
+    BaseModel(Parcel in) {
         id = in.readString();
         name = in.readString();
     }
@@ -65,5 +65,19 @@ public class BaseModel implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(id);
         parcel.writeString(name);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BaseModel) {
+            BaseModel baseModel = (BaseModel) obj;
+            return getId().equals(baseModel.getId());
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

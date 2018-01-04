@@ -7,12 +7,15 @@ import android.support.annotation.NonNull;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.ArrayList;
+
 /**
  * Created by RKR on 21-10-2017.
  * UserModel
  */
 @IgnoreExtraProperties
 public class UserModel extends BaseModel implements Parcelable {
+
 
     public static final Creator<UserModel> CREATOR = new Creator<UserModel>() {
         @Override
@@ -28,11 +31,14 @@ public class UserModel extends BaseModel implements Parcelable {
     private String photo;
     private String email;
     private String pushToken;
+    private ArrayList<ChatContactModel> chatContacts;
+
 
     public UserModel(@NonNull FirebaseUser user) {
         super(user.getUid(), user.getDisplayName());
         this.email = user.getEmail();
         this.photo = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+        this.chatContacts = new ArrayList<>();
     }
 
 
@@ -44,6 +50,7 @@ public class UserModel extends BaseModel implements Parcelable {
         photo = in.readString();
         email = in.readString();
         pushToken = in.readString();
+        chatContacts = in.createTypedArrayList(ChatContactModel.CREATOR);
     }
 
     @Override
@@ -52,6 +59,7 @@ public class UserModel extends BaseModel implements Parcelable {
         dest.writeString(photo);
         dest.writeString(email);
         dest.writeString(pushToken);
+        dest.writeTypedList(chatContacts);
     }
 
     public String getPhoto() {
@@ -76,6 +84,14 @@ public class UserModel extends BaseModel implements Parcelable {
 
     public void setPushToken(String pushToken) {
         this.pushToken = pushToken;
+    }
+
+    public ArrayList<ChatContactModel> getChatContacts() {
+        return chatContacts;
+    }
+
+    public void setChatContacts(ArrayList<ChatContactModel> chatContacts) {
+        this.chatContacts = chatContacts;
     }
 
     @Override

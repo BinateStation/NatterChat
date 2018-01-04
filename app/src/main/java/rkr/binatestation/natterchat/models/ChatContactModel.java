@@ -25,39 +25,33 @@ public class ChatContactModel extends BaseModel implements Parcelable {
             return new ChatContactModel[size];
         }
     };
-    private UserModel sender;
     private UserModel receiver;
     private ArrayList<ChatMessageModel> chatMessages = new ArrayList<>();
 
     public ChatContactModel() {
     }
 
-    public ChatContactModel(String id, String name, UserModel sender, UserModel receiver, ArrayList<ChatMessageModel> chatMessages) {
+    public ChatContactModel(String id, String name, UserModel receiver, ArrayList<ChatMessageModel> chatMessages) {
         super(id, name);
-        this.sender = sender;
         this.receiver = receiver;
         this.chatMessages = chatMessages;
     }
 
     private ChatContactModel(Parcel in) {
         super(in);
-        sender = in.readParcelable(UserModel.class.getClassLoader());
         receiver = in.readParcelable(UserModel.class.getClassLoader());
         chatMessages = in.createTypedArrayList(ChatMessageModel.CREATOR);
     }
 
     public static ArrayList<Object> getData(ArrayList<ChatMessageModel> chatMessageModels) {
         ArrayList<Object> data = new ArrayList<>();
-        for (ChatMessageModel messageModel : chatMessageModels) {
-            data.add(messageModel);
-        }
+        data.addAll(chatMessageModels);
         return data;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeParcelable(sender, flags);
         dest.writeParcelable(receiver, flags);
         dest.writeTypedList(chatMessages);
     }
@@ -65,14 +59,6 @@ public class ChatContactModel extends BaseModel implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    public UserModel getSender() {
-        return sender;
-    }
-
-    public void setSender(UserModel sender) {
-        this.sender = sender;
     }
 
     public UserModel getReceiver() {

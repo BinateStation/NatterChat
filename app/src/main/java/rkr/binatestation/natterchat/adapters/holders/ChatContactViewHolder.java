@@ -52,7 +52,7 @@ public class ChatContactViewHolder extends RecyclerViewAdapterBaseViewHolder {
             UserModel receiver = chatContactModel.getReceiver();
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null && receiver.getId().equals(user.getUid())) {
-                receiver = chatContactModel.getSender();
+                receiver = chatContactModel.getReceiver();
             }
             int size = chatContactModel.getChatMessages().size();
             if (size > 0) {

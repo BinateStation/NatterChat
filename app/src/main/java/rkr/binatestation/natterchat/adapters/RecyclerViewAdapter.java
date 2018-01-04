@@ -6,6 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 
 import rkr.binatestation.natterchat.adapters.holders.ChatContactViewHolder;
@@ -87,7 +90,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             return ChatContactViewHolder.LAYOUT_ID;
         }
         if (object instanceof ChatMessageModel) {
-            return ChatMessageViewHolder.LAYOUT_ID_RIGHT;
+            ChatMessageModel messageModel = (ChatMessageModel) object;
+            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (firebaseUser != null && messageModel.getUserModel() != null && firebaseUser.getUid().equals(messageModel.getUserModel().getId())) {
+                return ChatMessageViewHolder.LAYOUT_ID_RIGHT;
+            }
+            return ChatMessageViewHolder.LAYOUT_ID_LEFT;
         }
         if (object instanceof UserModel) {
             return UserViewHolder.LAYOUT_ID;

@@ -25,7 +25,7 @@ import rkr.binatestation.natterchat.listeners.ChatContactFragmentListener;
 import rkr.binatestation.natterchat.models.ChatContactModel;
 import rkr.binatestation.natterchat.models.UserModel;
 
-import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_CHATS;
+import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_USERS;
 
 /**
  * Fragment to list the contact list
@@ -83,28 +83,31 @@ public class ChatContactSwipeListFragment extends SwipeListFragment implements V
         super.onViewCreated(view, savedInstanceState);
         View actionUserListView = view.findViewById(R.id.action_pick_contact);
         actionUserListView.setOnClickListener(this);
-        loadContacts();
+        loadUser();
     }
 
-    private void loadContacts() {
+    private void loadUser() {
         showProgress();
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        Query usersQuery = mDatabase.child(KEY_TABLE_CHATS)
-                .orderByChild("id")
-                .equalTo(mUserModel.getId());
+        Query usersQuery = mDatabase.child(KEY_TABLE_USERS)
+                .child(mUserModel.getId());
         usersQuery.keepSynced(true);
-        usersQuery.addValueEventListener(this);
+        usersQuery.addListenerForSingleValueEvent(this);
     }
 
     @Override
     public void onDataChange(DataSnapshot dataSnapshot) {
         Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot + "]");
         hideProgress();
-        ArrayList<Object> data = new ArrayList<>();
-        for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-            data.add(userSnapshot.getValue(ChatContactModel.class));
-        }
-        getAdapter().setData(data);
+        ArrayList<ChatContactModel> data = new ArrayList<>();
+        UserModel userModel = dataSnapshot.getValue(UserModel.class);
+//        for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+//            ChatContactModel chatContactModel = userSnapshot.getValue(ChatContactModel.class);
+//            if(!data.contains(chatContactModel)) {
+//                data.add(userSnapshot.getValue(ChatContactModel.class));
+//            }
+//        }
+//        getAdapter().setData(data);
     }
 
     @Override

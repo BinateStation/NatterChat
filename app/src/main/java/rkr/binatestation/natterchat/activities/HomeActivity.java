@@ -8,15 +8,18 @@ import android.view.MenuItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
+
 import rkr.binatestation.natterchat.R;
 import rkr.binatestation.natterchat.fragments.ChatContactSwipeListFragment;
-import rkr.binatestation.natterchat.fragments.UsersSwipeListFragment;
 import rkr.binatestation.natterchat.listeners.ChatContactFragmentListener;
+import rkr.binatestation.natterchat.models.ChatContactModel;
+import rkr.binatestation.natterchat.models.ChatMessageModel;
 import rkr.binatestation.natterchat.models.UserModel;
 
 public class HomeActivity extends BaseActivity implements ChatContactFragmentListener {
 
-    private Intent mSettingsIntent;
+    private Intent mDetailsActivityIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,19 +53,19 @@ public class HomeActivity extends BaseActivity implements ChatContactFragmentLis
     }
 
     private void navigateToSettings() {
-        startActivity(getSettingsIntent());
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        UserModel userModel = null;
+        if (firebaseUser != null) {
+            userModel = new UserModel(firebaseUser);
+        }
+        startActivity(getDetailsActivityIntent(userModel));
     }
 
-    private Intent getSettingsIntent() {
-        if (mSettingsIntent == null) {
-            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            UserModel userModel = null;
-            if (firebaseUser != null) {
-                userModel = new UserModel(firebaseUser);
-            }
-            mSettingsIntent = DetailsActivity.newInstance(this, userModel);
+    private Intent getDetailsActivityIntent(Object model) {
+        if (mDetailsActivityIntent == null) {
+            mDetailsActivityIntent = DetailsActivity.newInstance(this, model);
         }
-        return mSettingsIntent;
+        return mDetailsActivityIntent;
     }
 
     private void signOut() {
@@ -86,9 +89,12 @@ public class HomeActivity extends BaseActivity implements ChatContactFragmentLis
     }
 
     private void openUserListFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, UsersSwipeListFragment.newInstance())
-                .addToBackStack("")
-                .commit();
+        ChatContactModel chatContactModel = new ChatContactModel(
+                "",
+                "",
+                null,
+                new ArrayList<ChatMessageModel>()
+        );
+        startActivity(getDetailsActivityIntent(chatContactModel));
     }
 }

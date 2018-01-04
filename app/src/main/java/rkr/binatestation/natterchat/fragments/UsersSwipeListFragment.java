@@ -1,6 +1,7 @@
 package rkr.binatestation.natterchat.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 
@@ -30,15 +31,25 @@ import static rkr.binatestation.natterchat.utils.Constant.KEY_TABLE_USERS;
  */
 
 public class UsersSwipeListFragment extends SwipeListFragment implements ValueEventListener, OnListItemClickListener {
-    private static final String TAG = "UsersSwipeListFragment";
+    public static final String TAG = "UsersSwipeListFragment";
+    private static final String KEY_CHAT_CONTACT_MODEL = "CHAT_CONTACT_MODEL";
+    private ChatContactModel mChatContactModel;
 
-    public static UsersSwipeListFragment newInstance() {
-
+    public static UsersSwipeListFragment newInstance(ChatContactModel chatContactModel) {
         Bundle args = new Bundle();
-
+        args.putParcelable(KEY_CHAT_CONTACT_MODEL, chatContactModel);
         UsersSwipeListFragment fragment = new UsersSwipeListFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            mChatContactModel = bundle.getParcelable(KEY_CHAT_CONTACT_MODEL);
+        }
     }
 
     @Override
@@ -51,7 +62,8 @@ public class UsersSwipeListFragment extends SwipeListFragment implements ValueEv
     private void loadUsers() {
         showProgress();
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        Query usersQuery = mDatabase.child(KEY_TABLE_USERS).limitToFirst(100);
+        Query usersQuery = mDatabase.child(KEY_TABLE_USERS)
+                .limitToFirst(100);
         usersQuery.addValueEventListener(this);
     }
 
@@ -60,10 +72,17 @@ public class UsersSwipeListFragment extends SwipeListFragment implements ValueEv
         Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot + "]");
         hideProgress();
         ArrayList<Object> data = new ArrayList<>();
-        for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-            data.add(userSnapshot.getValue(UserModel.class));
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (mChatContactModel != null && firebaseUser != null) {
+            for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                UserModel model = userSnapshot.getValue(UserModel.class);
+                if (model != null && !firebaseUser.getUid().equals(model.getId())) {
+                    data.add(model);
+                }
+            }
+            getAdapter().setData(data);
         }
-        getAdapter().setData(data);
     }
 
     @Override
@@ -80,17 +99,12 @@ public class UsersSwipeListFragment extends SwipeListFragment implements ValueEv
     private void navigateToChatActivity(Object object) {
         if (object instanceof UserModel) {
             UserModel receiver = (UserModel) object;
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null) {
-                UserModel sender = new UserModel(user);
-                ChatContactModel chatContactModel = new ChatContactModel(
-                        sender.getId() + receiver.getId(),
-                        receiver.getName(),
-                        sender,
-                        receiver,
-                        new ArrayList<ChatMessageModel>()
-                );
-                startActivity(ChatActivity.newInstance(getContext(), chatContactModel));
+            if (mChatContactModel != null && getContext() != null) {
+                mChatContactModel.setId(receiver.getId());
+                mChatContactModel.setName(receiver.getName());
+                mChatContactModel.setReceiver(receiver);
+                mChatContactModel.setChatMessages(new ArrayList<ChatMessageModel>());
+                startActivity(ChatActivity.newInstance(getContext(), mChatContactModel));
             }
         }
     }

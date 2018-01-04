@@ -3,11 +3,13 @@ package rkr.binatestation.natterchat.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 
 import rkr.binatestation.natterchat.R;
 import rkr.binatestation.natterchat.fragments.UserFragment;
-import rkr.binatestation.natterchat.models.BaseModel;
+import rkr.binatestation.natterchat.fragments.UsersSwipeListFragment;
+import rkr.binatestation.natterchat.models.ChatContactModel;
 import rkr.binatestation.natterchat.models.UserModel;
 
 public class DetailsActivity extends BaseActivity {
@@ -18,9 +20,12 @@ public class DetailsActivity extends BaseActivity {
      */
     private Object mDataModel;
 
-    public static Intent newInstance(Context context, BaseModel dataModel) {
+    public static Intent newInstance(Context context, Object dataModel) {
         Intent intent = new Intent(context, DetailsActivity.class);
-        intent.putExtra(KEY_DATA_MODEL, dataModel);
+        if (dataModel instanceof Parcelable) {
+            Parcelable model = (Parcelable) dataModel;
+            intent.putExtra(KEY_DATA_MODEL, model);
+        }
         return intent;
     }
 
@@ -43,6 +48,10 @@ public class DetailsActivity extends BaseActivity {
         if (mDataModel instanceof UserModel) {
             UserModel userModel = (UserModel) mDataModel;
             loadFragment(UserFragment.newInstance(userModel), UserFragment.TAG);
+        }
+        if (mDataModel instanceof ChatContactModel) {
+            ChatContactModel chatContactModel = (ChatContactModel) mDataModel;
+            loadFragment(UsersSwipeListFragment.newInstance(chatContactModel), UsersSwipeListFragment.TAG);
         }
     }
 
